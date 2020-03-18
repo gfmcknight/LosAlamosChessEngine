@@ -8,20 +8,27 @@
 
 /*
  * Function Name: allRawMoves()
- * Function Prototype: struct Move * allRawMoves(int * board, int color);
+ * Function Prototype: struct Move * allRawMoves(int * board, int color,
+ *                                               struct Move * buffer);
  * Description: Compiles all possible moves for every piece for a given
  *              color on the heap.
  * Parameters:
  *      int * board -- The array holding the board state.
  *      int color -- The bit pattern for the color of the player to search for.
- * Side Effects: Allocates memory on the heap.
+ *      struct Move * buffer -- The buffer in which to place the moves. If null,
+ *                              then a buffer will be malloc'ed.
+ * Side Effects: May allocates memory on the heap.
  * Return Value: A pointer to the nul-terminated array of possible moves.
  */
 
-struct Move * allRawMoves(int * board, int color)
+struct Move * allRawMoves(int * board, int color, struct Move * buffer)
 {
-    struct Move * moves = (struct Move *)
+    if (buffer == NULL)
+    {
+        buffer = (struct Move *)
             malloc(sizeof(struct Move) * MOVE_BUFSIZ);
+    }
+
     int length = 0;
     int numAdded = 0;
 
@@ -30,11 +37,11 @@ struct Move * allRawMoves(int * board, int color)
     {
         if ((board[i] != EMPTY) && (board[i] & COLOR) == color)
         {
-            getRawMoves(board, i, &numAdded, moves + length);
+            getRawMoves(board, i, &numAdded, buffer + length);
             length += numAdded;
         }
     }
-    moves[length].destination = 0;
-    moves[length].source = 0;
-    return moves;
+    buffer[length].destination = 0;
+    buffer[length].source = 0;
+    return buffer;
 }

@@ -16,7 +16,7 @@
  * Return Value: True if the x and y are in the range [0,6)
  */
 
-bool isValidPosition(int x, int y)
+int isValidPosition(int x, int y)
 {
     return x >= 0 && x < BOARD_WIDTH &&
            y >= 0 && y < BOARD_WIDTH;

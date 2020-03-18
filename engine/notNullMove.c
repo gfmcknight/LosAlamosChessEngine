@@ -14,7 +14,7 @@
  * Return Value: True if the move is the null move, false otherwise.
  */
 
-bool notNullMove(struct Move move)
+int notNullMove(struct Move move)
 {
     return move.destination != 0 ||
            move.source != 0;

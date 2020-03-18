@@ -15,10 +15,10 @@
 #define MOVE_RULE    5
 
 void initGame();
-int checkStatus(int board[BOARD_SIZE], bool color);
+int checkStatus(int board[BOARD_SIZE], int color);
 void computeLegalMoves(int board[BOARD_SIZE], int position);
 int getNextLegalMove();
-bool setAIProperty(char * name, double value, int profile);
-int getBestMove(int board[BOARD_SIZE], bool white, int profile);
+int setAIProperty(char * name, double value, int profile);
+int getBestMove(int board[BOARD_SIZE], int white, int profile);
 
 #endif

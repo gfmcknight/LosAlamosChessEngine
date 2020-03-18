@@ -25,12 +25,12 @@
  *               destination.
  */
 
-static bool canMoveOrCapture(int * board, int source, int x, int y, int* dest)
+static int canMoveOrCapture(int * board, int source, int x, int y, int* dest)
 {
     int color = board[source] & COLOR;
     if (!isValidPosition(x, y))
     {
-        return false;
+        return FALSE;
     }
     else
     {

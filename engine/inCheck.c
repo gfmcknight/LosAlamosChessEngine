@@ -16,12 +16,12 @@
  * Return Value: True if the player is in check, false otherwise.
  */
 
-bool inCheck(int * board, int color)
+int inCheck(int * board, int color)
 {
     // The checker is the opposite of the color of
     // the player we're given.
     int colorOfChecker = !color;
-    struct Move * moves = allRawMoves(board, colorOfChecker);
+    struct Move * moves = allRawMoves(board, colorOfChecker, NULL);
 
     for (int i = 0; notNullMove(moves[i]); i++)
     {
@@ -29,10 +29,10 @@ bool inCheck(int * board, int color)
                 ((KING << PIECE_OFFSET) | color))
         {
             free(moves);
-            return true;
+            return TRUE;
         }
     }
 
     free(moves);
-    return false;
+    return FALSE;
 }

@@ -2,7 +2,9 @@
 // Created by Graham McKnight on 8/21/2017.
 //
 
-#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "chessInterface.h"
 #include "engine\chessEngine.h"
@@ -13,11 +15,12 @@ static int prevNumPieces;
 
 void initGame()
 {
+    srand(time(NULL));
     boardIndex = 0;
     prevNumPieces = 0;
 }
 
-int checkStatus(int board[BOARD_SIZE], bool white)
+int checkStatus(int board[BOARD_SIZE], int white)
 {
     int color = white ? WHITE : BLACK;
 
@@ -73,7 +76,7 @@ int checkStatus(int board[BOARD_SIZE], bool white)
         }
     }
 
-    struct Move * rawMoves = allRawMoves(board, color);
+    struct Move * rawMoves = allRawMoves(board, color, NULL);
     for (int i = 0; notNullMove(rawMoves[i]); i++) {
         applyMove(board, rawMoves[i]);
         if (!inCheck(board, color)) {

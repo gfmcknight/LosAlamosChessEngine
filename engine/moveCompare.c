@@ -19,5 +19,5 @@
 
 int moveCompare(const void* p1, const void* p2)
 {
-    return ((Move*) p2)->heuristic - ((Move*) p1)->heuristic;
+    return ((struct Move*) p2)->heuristic - ((struct Move*) p1)->heuristic;
 }

@@ -29,12 +29,13 @@
  *               destination.
  */
 
-static bool canMoveOrCapture(int * board, int source, int x, int y, int* dest)
+static int canMoveOrCapture(int * board, int source, int x, int y, int* dest)
 {
     int color = board[source] & COLOR;
     if (!isValidPosition(x, y))
     {
-        return false;
+        *dest = -1;
+        return FALSE;
     }
     else
     {
@@ -70,22 +71,26 @@ static void addPawnMoves(int * board, int position, int* count)
     int destY = y + direction;
     if (canMoveOrCapture(board, position, x - 1, destY,
                          &destination) &&
-        board[destination] != EMPTY) {
+            board[destination] != EMPTY)
+    {
         if (destY == 0 || destY == BOARD_WIDTH - 1) {
             (*count)++;
         } else {
             (*count)++;
         }
     }
+
     if (canMoveOrCapture(board, position, x + 1, destY,
                          &destination) &&
-        board[destination] != EMPTY) {
+            board[destination] != EMPTY)
+    {
         if (destY == 0 || destY == BOARD_WIDTH - 1) {
             (*count)++;
         } else {
             (*count)++;
         }
     }
+
     if (canMoveOrCapture(board, position, x, destY,
                          &destination) &&
         board[destination] == EMPTY) {
@@ -155,30 +160,37 @@ static void addKnightMoves(int * board, int position, int* count)
                          x - 2, y - 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x - 2, y + 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x + 2, y - 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x + 2, y + 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x - 1, y - 2, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x - 1, y + 2, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x + 1, y - 2, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x + 1, y + 2, &destination)) {
         (*count)++;
@@ -349,30 +361,37 @@ static void addKingMoves(int * board, int position, int* count) {
                          x - 1, y - 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x, y - 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x + 1, y - 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x - 1, y, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x + 1, y, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x - 1, y + 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x, y + 1, &destination)) {
         (*count)++;
     }
+
     if (canMoveOrCapture(board, position,
                          x + 1, y + 1, &destination)) {
         (*count)++;

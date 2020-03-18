@@ -3,7 +3,8 @@
 //
 
 #include <stdlib.h>
-#include <cmath>
+#include <math.h>
+#include <string.h>
 #include "chessEngine.h"
 
 /*
@@ -26,8 +27,9 @@ double evaluatePosition(int * board, int color, int evaluator, int profile)
 {
     double value = ((double)rand() / (double)RAND_MAX) * NOISE - 0.5f * NOISE;
     double material = 0.0f;
-    double centralityValue = 0.0f;
     double safetyValue = 0.0f;
+    double centralityValue = 0.0f;
+
     int moveCount;
     for (int i = 0; i < BOARD_SIZE; i++)
     {
@@ -47,27 +49,21 @@ double evaluatePosition(int * board, int color, int evaluator, int profile)
 
         switch ((board[i] & PIECE_MASK) >> PIECE_OFFSET) {
             case PAWN:
-            {
-                int x, y;
-                expandPosition(i, &x, &y);
-                value += abs(color * BOARD_WIDTH - y) *
-                        evalProfile[profile * NUM_PROPERTIES +
-                                    PAWN_PUSH_INDEX];
-            }
             case SUPER_PAWN:
             {
                 int x, y;
                 expandPosition(i, &x, &y);
-                value += abs(color * BOARD_WIDTH - y) *
-                         evalProfile[profile * NUM_PROPERTIES +
-                                     PAWN_PUSH_INDEX];
+                value += benefitMagnitude *
+                        (abs(color * BOARD_WIDTH - y) - 1) *
+                        evalProfile[profile * NUM_PROPERTIES +
+                                    PAWN_PUSH_INDEX];
             }
             case KING:
             {
                 int x, y;
                 expandPosition(i, &x, &y);
                 centralityValue -= benefitMagnitude *
-                        (fabs(CENTER - x) + fabs(CENTER - y)) *
+                        (fmax(fabs(CENTER - x), fabs(CENTER - y))) *
                         evalProfile[profile * NUM_PROPERTIES +
                                     KING_CENTER_INDEX];
                 safetyValue -= benefitMagnitude * moveCount *
@@ -75,15 +71,16 @@ double evaluatePosition(int * board, int color, int evaluator, int profile)
                                            KING_SAFETY_INDEX];
             }
         }
-        if (material < evalProfile[profile * NUM_PROPERTIES +
-                                   CENTER_CUTOFF_INDEX])
-        {
-            value += centralityValue;
-        }
-        else
-        {
-            value += safetyValue;
-        }
+    }
+
+    if (material < evalProfile[profile * NUM_PROPERTIES +
+                                CENTER_CUTOFF_INDEX])
+    {
+        value += centralityValue;
+    }
+    else
+    {
+        value += safetyValue;
     }
 
     return value;

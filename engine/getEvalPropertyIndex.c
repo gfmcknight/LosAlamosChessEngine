@@ -33,7 +33,8 @@ static const char * properties[] = {
         "Pawn_Push_Value",
         "King_Center_Cutoff",
         "Depth",
-        "Q_Depth"
+        "Q_Depth",
+        "Target"
 };
 
 /*

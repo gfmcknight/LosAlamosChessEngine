@@ -3,8 +3,8 @@
 //
 
 #include <malloc.h>
-#include <pthread.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "chessEngine.h"
 
@@ -33,16 +33,20 @@
  */
 
 double evaluateMove(int * board, int color, int depth, double alpha,
-                    int profile, int evaluator, bool capture)
+                    int profile, int evaluator, int capture)
 {
-    if (depth <= -evalProfile[Q_DEPTH_INDEX] || (!capture && depth <= 0))
+    if (depth <= -evalProfile[profile * NUM_PROPERTIES + Q_DEPTH_INDEX] ||
+            (!capture && depth <= 0))
     {
         return evaluatePosition(board, color, evaluator, profile);
     }
-    struct Move * possibleMoves = allRawMoves(board, color);
+
+    struct Move possibleMoves[MOVE_BUFSIZ];
+    allRawMoves(board, color, possibleMoves);
+
     double bestMoveValue = LOSS;
     double currentValue;
-    bool isCapture;
+    int isCapture;
 
     int numMoves;
     for (numMoves = 0; notNullMove(possibleMoves[numMoves]); numMoves++);
@@ -67,13 +71,11 @@ double evaluateMove(int * board, int color, int depth, double alpha,
         {
             bestMoveValue = currentValue;
             if (currentValue > alpha) {
-                free(possibleMoves);
                 return currentValue;
             }
         }
     }
 
-    free (possibleMoves);
     return bestMoveValue;
 }
 
@@ -106,7 +108,11 @@ double evaluateMove(int * board, int color, int depth, double alpha,
  */
 void* search(void* args)
 {
-    SearchThreadObject* object = (SearchThreadObject*) args;
+    struct SearchThreadObject* object = (struct SearchThreadObject*) args;
+
+    double target = evalProfile[object->profile * NUM_PROPERTIES +
+                                TARGET_INDEX];
+
 
     struct Move * possibleMoves = object->moveSet;
     struct Move bestMove;
@@ -126,16 +132,57 @@ void* search(void* args)
             object->evaluation = WIN;
             struct Move result = possibleMoves[i];
             object->bestMove = result;
-            object->finished = true;
-            pthread_exit(NULL);
+            object->finished = TRUE;
             return NULL;
         }
         applyMove(object->board, possibleMoves[i]);
-        currentValue = -evaluateMove(object->board, !object->color,
+
+        int mate = TRUE;
+        struct Move* responses = allRawMoves(object->board, !object->color, NULL);
+
+        for (int j = 0; notNullMove(responses[j]); j++)
+        {
+            applyMove(object->board, responses[j]);
+            if (!inCheck(object->board, !object->color))
+            {
+                mate = FALSE;
+                reverseMove(object->board, responses[j]);
+                break;
+            }
+            reverseMove(object->board, responses[j]);
+        }
+
+        free(responses);
+
+        if (inCheck(object->board, object->color))
+        {
+            currentValue = LOSS - object->depth - 1;
+        }
+        else if (mate)
+        {
+            if (inCheck(object->board, !object->color))
+            {
+                object->evaluation = WIN;
+                object->bestMove = possibleMoves[i];
+                object->finished = TRUE;
+                return NULL;
+            }
+            else
+            {
+                currentValue = 0;
+            }
+        }
+        else
+        {
+            currentValue = -evaluateMove(object->board, !object->color,
                 object->depth - 1, -bestMoveValue, object->profile,
-                object->color, false);
+                object->color, FALSE);
+        }
+
+
         reverseMove(object->board, possibleMoves[i]);
-        if (currentValue > bestMoveValue)
+        // Find the move that most closely approaches the target
+        if (fabs(target - currentValue) < fabs(target - bestMoveValue))
         {
             bestMoveValue = currentValue;
             bestMove = possibleMoves[i];
@@ -144,7 +191,6 @@ void* search(void* args)
 
     object->evaluation = bestMoveValue;
     object->bestMove = bestMove;
-    object->finished = true;
-    pthread_exit(NULL);
+    object->finished = TRUE;
     return NULL;
 }

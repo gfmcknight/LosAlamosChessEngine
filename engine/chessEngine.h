@@ -5,6 +5,9 @@
 #ifndef LOSALAMOSCHESS_CHESSENGINE_H
 #define LOSALAMOSCHESS_CHESSENGINE_H
 
+#define TRUE 1
+#define FALSE 0
+
 #define EMPTY 0
 
 #define COLOR 1
@@ -31,7 +34,7 @@
 #define MAX_MOVES        124
 #define MOVE_BUFSIZ      150
 
-#define NUM_PROPERTIES      27
+#define NUM_PROPERTIES      28
 #define SELF_INDEX           0
 #define OPPONENT_INDEX      10
 #define KING_SAFETY_INDEX   20
@@ -41,19 +44,19 @@
 #define CENTER_CUTOFF_INDEX 24
 #define DEPTH_INDEX         25
 #define Q_DEPTH_INDEX       26
+#define TARGET_INDEX        27
 
 #define NOISE 0.05f
 
 #define CENTER (((double) (BOARD_WIDTH - 1)) / 2.0f)
 
-#define NUM_THREADS 2
 #define MAX_PROFILES 2
 
-#define WIN   50000.0f
-#define LOSS -50000.0f
+#define WIN   200.0f
+#define LOSS -200.0f
 
 #define MAX_REPETITIONS 3
-#define MOVE_LIMIT 50
+#define MOVE_LIMIT 100
 
 struct Move {
     int source;
@@ -65,19 +68,19 @@ struct Move {
 
 struct SearchThreadObject {
     int * board;
-    Move * moveSet;
+    struct Move * moveSet;
     int num;
     int depth;
     int color;
     int profile;
-    bool finished;
+    int finished;
     double evaluation;
-    Move bestMove;
+    struct Move bestMove;
 };
 
 extern double evalProfile[NUM_PROPERTIES * MAX_PROFILES];
 
-bool isValidPosition(int x, int y);
+int isValidPosition(int x, int y);
 int collapsePosition(int x, int y);
 void expandPosition(int position, int* x, int* y);
 struct Move encodeMove(int * board, int source,
@@ -86,12 +89,12 @@ void applyMove(int * board, struct Move move);
 void reverseMove(int * board, struct Move move);
 struct Move * getRawMoves(int * board, int position,
                            int * numMoves, struct Move * buffer);
-struct Move * allRawMoves(int * board, int color);
-bool inCheck(int * board, int color);
+struct Move * allRawMoves(int * board, int color, struct Move * buffer);
+int inCheck(int * board, int color);
 struct Move * getLegalMoves(int * board, int position);
 double evaluatePosition(int * board, int color, int evaluator, int profile);
 void* search(void* args);
-bool notNullMove(struct Move move);
+int notNullMove(struct Move move);
 int getEvalPropertyIndex(const char * string);
 int rawMoveCount(int * board, int position);
 int moveCompare(const void* p1, const void* p2);
